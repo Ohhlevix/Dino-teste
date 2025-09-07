@@ -1,16 +1,17 @@
+<script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Elementos do jogo
     const dino = document.querySelector('.dino');
-    const cactus = document.querySelector('.cactus');
-    const groundLine = document.querySelector('.ground-line');
+    const obstaclesContainer = document.querySelector('.obstacles');
+    const groundSprite = document.querySelector('.ground-sprite');
     const cloudsContainer = document.querySelector('.clouds-container');
     const scoreDisplay = document.querySelector('.score');
     const highScoreDisplay = document.querySelector('.high-score');
     const gameOverDisplay = document.querySelector('.game-over');
+    const finalScoreDisplay = document.querySelector('.final-score span');
     const startInstruction = document.querySelector('.start-instruction');
+    const jumpButton = document.querySelector('.jump-button');
     const body = document.querySelector('body');
     
-    // Variáveis do jogo
     let isGameOver = false;
     let isJumping = false;
     let isGameStarted = false;
@@ -19,29 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameSpeed = 1.5;
     let cloudSpawnInterval;
     let scoreInterval;
+    let obstacleInterval;
     
-    // Atualizar high score
     highScoreDisplay.textContent = `HI ${String(highScore).padStart(2, '0')}`;
     
-    // Inicializar dinossauro
-    function initDino() {
-        dino.innerHTML = `
-            <div class="dino-body">
-                <div class="dino-head">
-                    <div class="dino-eye"></div>
-                </div>
-            </div>
-            <div class="dino-leg dino-leg-front"></div>
-            <div class="dino-leg dino-leg-back"></div>
-        `;
-    }
-    
-    // Criar nuvens
     function createCloud() {
-        const cloud = document.createElement('div');
+        const cloud = document.createElement('img');
         cloud.classList.add('cloud', 'moving-cloud');
+        cloud.src = './assets/images/cloud.png';
         
-        const size = Math.random() * 15 + 10;
+        const size = Math.random() * 20 + 20;
         const top = Math.random() * 40;
         
         cloud.style.width = `${size}px`;
@@ -51,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         cloudsContainer.appendChild(cloud);
         
-        // Remover nuvem após sair da tela
         setTimeout(() => {
             if (cloud.parentNode) {
                 cloud.parentNode.removeChild(cloud);
@@ -59,12 +46,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 20000);
     }
     
-    // Alternar modo noturno
     function toggleNightMode() {
         body.classList.toggle('night-mode');
     }
     
-    // Iniciar jogo
+    function createObstacle() {
+        if (!isGameStarted || isGameOver) return;
+        
+        const obstacle = document.createElement('img');
+        obstacle.classList.add('obstacle', 'moving', 'cactus');
+        obstacle.src = './assets/images/block.png';
+        
+        obstaclesContainer.appendChild(obstacle);
+        
+        obstacle.style.animationDuration = `${gameSpeed}s`;
+        
+        setTimeout(() => {
+            if (obstacle.parentNode) {
+                obstacle.parentNode.removeChild(obstacle);
+            }
+        }, gameSpeed * 1000 + 1000);
+    }
+    
     function startGame() {
         if (isGameStarted) return;
         
@@ -73,32 +76,29 @@ document.addEventListener('DOMContentLoaded', () => {
         score = 0;
         gameSpeed = 1.5;
         
-        // Esconder instrução inicial
         startInstruction.style.display = 'none';
         gameOverDisplay.style.display = 'none';
         
-        // Iniciar animações
-        cactus.classList.add('moving');
-        groundLine.classList.add('moving-ground');
+        obstaclesContainer.innerHTML = '';
         
-        // Ajustar velocidade baseada no gameSpeed
-        cactus.style.animationDuration = `${gameSpeed}s`;
+        groundSprite.classList.add('moving-ground');
         
-        // Gerar nuvens
         cloudSpawnInterval = setInterval(createCloud, 3000);
         
-        // Iniciar pontuação
+        obstacleInterval = setInterval(createObstacle, 1500);
+        
         scoreInterval = setInterval(() => {
             if (!isGameOver) {
                 score++;
                 scoreDisplay.textContent = String(score).padStart(2, '0');
                 
-                // Aumentar dificuldade a cada 100 pontos
                 if (score % 100 === 0) {
                     gameSpeed *= 0.9;
-                    cactus.style.animationDuration = `${gameSpeed}s`;
                     
-                    // Alternar modo noturno a cada 200 pontos
+                    document.querySelectorAll('.obstacle').forEach(obs => {
+                        obs.style.animationDuration = `${gameSpeed}s`;
+                    });
+                    
                     if (score % 200 === 0) {
                         toggleNightMode();
                     }
@@ -107,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
     
-    // Pular
     function jump() {
         if (isJumping || !isGameStarted) return;
         
@@ -120,64 +119,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     }
     
-    // Verificar colisões
     function checkCollision() {
         if (!isGameStarted || isGameOver) return;
         
         const dinoRect = dino.getBoundingClientRect();
-        const cactusRect = cactus.getBoundingClientRect();
+        const obstacles = document.querySelectorAll('.obstacle');
         
-        // Ajustar a área de colisão para ser mais precisa
-        if (
-            cactusRect.left < dinoRect.right - 10 &&
-            cactusRect.right > dinoRect.left + 10 &&
-            cactusRect.top < dinoRect.bottom - 5 &&
-            cactusRect.bottom > dinoRect.top + 5
-        ) {
-            gameOver();
-        }
+        obstacles.forEach(obstacle => {
+            const obstacleRect = obstacle.getBoundingClientRect();
+            
+            if (
+                obstacleRect.left < dinoRect.right - 15 &&
+                obstacleRect.right > dinoRect.left + 15 &&
+                obstacleRect.top < dinoRect.bottom - 5 &&
+                obstacleRect.bottom > dinoRect.top + 5
+            ) {
+                gameOver();
+            }
+        });
     }
     
-    // Game over
     function gameOver() {
         isGameOver = true;
         isGameStarted = false;
         
-        // Parar animações
-        cactus.classList.remove('moving');
-        groundLine.classList.remove('moving-ground');
+        groundSprite.classList.remove('moving-ground');
         
-        // Parar geração de nuvens e pontuação
         clearInterval(cloudSpawnInterval);
+        clearInterval(obstacleInterval);
         clearInterval(scoreInterval);
         
-        // Atualizar high score
+        document.querySelectorAll('.obstacle').forEach(obs => {
+            obs.style.animationPlayState = 'paused';
+        });
+        
         if (score > highScore) {
             highScore = score;
             localStorage.setItem('dinoHighScore', highScore);
             highScoreDisplay.textContent = `HI ${String(highScore).padStart(2, '0')}`;
         }
         
-        // Mostrar tela de game over
+        finalScoreDisplay.textContent = String(score).padStart(2, '0');
         gameOverDisplay.style.display = 'block';
         startInstruction.style.display = 'block';
     }
     
-    // Reiniciar jogo
     function restartGame() {
         if (!isGameOver) return;
         
-        // Reposicionar cacto
-        cactus.style.right = '-20px';
+        obstaclesContainer.innerHTML = '';
         
-        // Mostrar instrução inicial
         startInstruction.style.display = 'block';
-        
-        // Limpar nuvens
-        cloudsContainer.innerHTML = '';
+        gameOverDisplay.style.display = 'none';
     }
     
-    // Event listeners
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space' || e.key === 'ArrowUp' || e.key === 'w') {
             if (!isGameStarted && !isGameOver) {
@@ -190,8 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Suporte para toque em dispositivos móveis
-    document.addEventListener('touchstart', () => {
+    jumpButton.addEventListener('click', () => {
         if (!isGameStarted && !isGameOver) {
             startGame();
         } else if (isGameOver) {
@@ -201,14 +195,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Loop de verificação de colisão
+    document.addEventListener('touchstart', (e) => {
+        if (e.target !== jumpButton) {
+            if (!isGameStarted && !isGameOver) {
+                startGame();
+            } else if (isGameOver) {
+                restartGame();
+            } else {
+                jump();
+            }
+        }
+    });
+    
     setInterval(checkCollision, 10);
     
-    // Inicializar o jogo
-    initDino();
-    
-    // Criar algumas nuvens iniciais
     for (let i = 0; i < 3; i++) {
         setTimeout(() => createCloud(), i * 1000);
     }
+    
+    if ('ontouchstart' in window || navigator.maxTouchPoints) {
+        jumpButton.style.display = 'block';
+    }
 });
+</script>
