@@ -1,3 +1,4 @@
+<style>
 * {
     margin: 0;
     padding: 0;
@@ -12,19 +13,17 @@ body {
     align-items: center;
     height: 100vh;
     overflow: hidden;
-    transition: background-color 200ms;
 }
 
 body.night-mode {
     background-color: #2C2C2C;
-    color: #f7f7f7;
 }
 
 .container {
-    width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    gap: 20px;
 }
 
 .game-container {
@@ -35,73 +34,17 @@ body.night-mode {
 }
 
 .dino {
-    width: 40px;
-    height: 60px;
+    width: 44px;
+    height: 47px;
     position: absolute;
     bottom: 0;
     left: 50px;
     z-index: 2;
 }
 
-.dino-body {
-    width: 40px;
-    height: 45px;
-    background-color: #535353;
-    position: absolute;
-    bottom: 0;
-    border-radius: 5px;
-}
-
-body.night-mode .dino-body {
-    background-color: #f7f7f7;
-}
-
-.dino-head {
-    width: 25px;
-    height: 20px;
-    background-color: #535353;
-    position: absolute;
-    top: -15px;
-    left: 20px;
-    border-radius: 5px 5px 0 0;
-}
-
-body.night-mode .dino-head {
-    background-color: #f7f7f7;
-}
-
-.dino-eye {
-    width: 6px;
-    height: 6px;
-    background-color: #000;
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    border-radius: 50%;
-}
-
-body.night-mode .dino-eye {
-    background-color: #2C2C2C;
-}
-
-.dino-leg {
-    width: 12px;
-    height: 8px;
-    background-color: #535353;
-    position: absolute;
-    bottom: -8px;
-}
-
-body.night-mode .dino-leg {
-    background-color: #f7f7f7;
-}
-
-.dino-leg-front {
-    left: 5px;
-}
-
-.dino-leg-back {
-    right: 5px;
+.dino-sprite {
+    width: 100%;
+    height: 100%;
 }
 
 .jumping {
@@ -115,41 +58,23 @@ body.night-mode .dino-leg {
     100% { bottom: 0; }
 }
 
-.cactus {
-    width: 20px;
-    height: 40px;
-    background-color: #535353;
+.obstacle {
     position: absolute;
     bottom: 0;
     right: -20px;
     z-index: 1;
-    border-radius: 5px 5px 0 0;
 }
 
-body.night-mode .cactus {
-    background-color: #f7f7f7;
-}
-
-.cactus::before {
-    content: '';
-    position: absolute;
-    width: 10px;
-    height: 15px;
-    background-color: #535353;
-    top: -10px;
-    left: 5px;
-    border-radius: 5px 5px 0 0;
-}
-
-body.night-mode .cactus::before {
-    background-color: #f7f7f7;
+.cactus {
+    width: 34px;
+    height: 70px;
 }
 
 .moving {
-    animation: cactusMove 1.5s infinite linear;
+    animation: obstacleMove 1.5s infinite linear;
 }
 
-@keyframes cactusMove {
+@keyframes obstacleMove {
     0% { right: -20px; }
     100% { right: 620px; }
 }
@@ -158,19 +83,15 @@ body.night-mode .cactus::before {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 20px;
+    height: 22px;
+    overflow: hidden;
 }
 
-.ground-line {
+.ground-sprite {
     position: absolute;
     bottom: 0;
-    width: 1000px;
-    height: 2px;
-    background-color: #535353;
-}
-
-body.night-mode .ground-line {
-    background-color: #f7f7f7;
+    width: 1200px;
+    height: 22px;
 }
 
 .moving-ground {
@@ -179,18 +100,11 @@ body.night-mode .ground-line {
 
 @keyframes groundMove {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-1000px); }
+    100% { transform: translateX(-1200px); }
 }
 
 .cloud {
     position: absolute;
-    background-color: #535353;
-    border-radius: 50%;
-    opacity: 0.8;
-}
-
-body.night-mode .cloud {
-    background-color: #f7f7f7;
 }
 
 .clouds-container {
@@ -215,6 +129,7 @@ body.night-mode .cloud {
     font-size: 14px;
     font-weight: bold;
     color: #535353;
+    font-family: 'Courier New', monospace;
 }
 
 body.night-mode .score,
@@ -238,26 +153,29 @@ body.night-mode .high-score {
     text-align: center;
     display: none;
     z-index: 10;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+body.night-mode .game-over {
+    background-color: rgba(44, 44, 44, 0.9);
+    color: #f7f7f7;
 }
 
 .game-over-text {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 10px;
-    color: #535353;
 }
 
-body.night-mode .game-over-text {
-    color: #f7f7f7;
+.final-score {
+    margin-bottom: 10px;
 }
 
 .restart-instruction {
     font-size: 12px;
-    color: #535353;
-}
-
-body.night-mode .restart-instruction {
-    color: #f7f7f7;
 }
 
 .start-instruction {
@@ -297,15 +215,41 @@ body.night-mode .start-instruction div:last-child {
     color: #f7f7f7;
 }
 
-/* Responsividade */
+.jump-button {
+    display: none;
+    padding: 15px 30px;
+    background-color: #535353;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+body.night-mode .jump-button {
+    background-color: #f7f7f7;
+    color: #2C2C2C;
+}
+
 @media (max-width: 630px) {
     .game-container {
         width: 100%;
         padding: 0 15px;
     }
     
-    @keyframes cactusMove {
+    @keyframes obstacleMove {
         0% { right: -20px; }
         100% { right: 100%; }
     }
-        }
+    
+    .jump-button {
+        display: block;
+    }
+}
+
+@media (max-height: 700px) {
+    .jump-button {
+        display: block;
+    }
+}
+</style>
