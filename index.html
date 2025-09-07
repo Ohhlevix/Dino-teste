@@ -9,10 +9,12 @@
 <body>
     <div class="container">
         <div class="game-container">
-            <div class="dino"></div>
-            <div class="cactus"></div>
+            <div class="dino">
+                <img src="./assets/images/dino.png" alt="Dinossauro" class="dino-sprite">
+            </div>
+            <div class="obstacles"></div>
             <div class="ground">
-                <div class="ground-line"></div>
+                <img src="./assets/images/road.png" alt="Chão" class="ground-sprite">
             </div>
             <div class="clouds-container"></div>
             <div class="score">00</div>
@@ -20,6 +22,7 @@
             
             <div class="game-over">
                 <div class="game-over-text">Fim de jogo</div>
+                <div class="final-score">Pontuação: <span>00</span></div>
                 <div class="restart-instruction">Pressione ESPAÇO para reiniciar</div>
             </div>
             
@@ -28,6 +31,7 @@
                 <div>Para começar</div>
             </div>
         </div>
+        <button class="jump-button">Pular</button>
     </div>
 
     <script src="app.js"></script>
